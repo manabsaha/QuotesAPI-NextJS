@@ -16,7 +16,7 @@ export class QuotesController {
    */
   @Get('daily')
   async getDailyQuotes(): Promise<string[]> {
-    return this.quotesService.getDailyQuotes();
+    return await this.quotesService.getDailyQuotes();
   }
 
   /**
