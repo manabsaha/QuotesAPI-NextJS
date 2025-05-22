@@ -57,9 +57,25 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Docker
+## Docker (Without Redis, Just For Info)
+```
 docker build -t quotes-nestjs-app .
 docker run -p 3000:3000 quotes-nestjs-app
+```
+Stop:
+```
+docker stop quotes-nestjs-app
+```
+
+## Docker (With Redis)
+```
+docker-compose build
+docker-compose up -d
+```
+Stop:
+```
+docker-compose down
+```
 
 ## Deployment
 

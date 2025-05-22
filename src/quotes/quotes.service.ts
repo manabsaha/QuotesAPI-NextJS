@@ -1,26 +1,32 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { QUOTES } from 'src/data/quotes.data';
 import Redis from 'ioredis';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class QuotesService {
-  // private redis = new Redis();
+  private readonly redis = new Redis({
+    host: 'redis',  // Get this from .env
+    port: 6379,    // Get this from .env
+  });
+
+  constructor(private readonly configService: ConfigService) { }
 
   async getDailyQuotes(): Promise<string[]> {
-    // const cacheKey = 'daily_quotes';
-    // const cachedQuotes = await this.redis.get(cacheKey);
+    const cacheKey = 'daily_quotes';
+    const cachedQuotes = await this.redis.get(cacheKey);
     Logger.log('getDailyQuotes called');
 
-    // if (cachedQuotes) {
-    //   log("in cache");
-    //   return JSON.parse(cachedQuotes);
-    // }
+    if (cachedQuotes) {
+      Logger.log("Retrieved from Redis cache");
+      return JSON.parse(cachedQuotes);
+    }
 
     const dateSeed = new Date().toISOString().split('T')[0];
     const hash = [...dateSeed].reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const dailyQuotes = QUOTES.sort((a, b) => (a.length + hash) % QUOTES.length - (b.length + hash) % QUOTES.length).slice(0, 10);
 
-    // await this.redis.set(cacheKey, JSON.stringify(dailyQuotes), 'EX', this.getSecondsUntilMidnight());
+    await this.redis.set(cacheKey, JSON.stringify(dailyQuotes), 'EX', this.getSecondsUntilMidnight());
 
     return dailyQuotes;
   }
